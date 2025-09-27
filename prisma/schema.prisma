@@ -19,6 +19,7 @@ model User {
   
   sessions      Session[]
   accounts      Account[]
+  wallet        Wallet?
 
   @@unique([email])
   @@map("user")
@@ -67,4 +68,18 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Wallet {
+  id          String   @id @default(cuid())
+  publicKey   String   @unique
+  privateKey  String   // Encrypted in real-world applications
+  mnemonic    String   // Encrypted in real-world applications
+  isActivated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallet")
 }

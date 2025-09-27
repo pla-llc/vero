@@ -21,8 +21,10 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./dropdown-menu";
+import { authClient } from "@/lib/auth/client";
 
 const ITEMS = [
 	{
@@ -136,7 +138,26 @@ const Navbar = ({ authState }: { authState: AuthState }) => {
 									</Avatar>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
-									<DropdownMenuItem>Yellow</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link href="/dashboard" className="cursor-pointer">
+											Dashboard
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem 
+										className="cursor-pointer text-destructive focus:text-destructive"
+										onClick={async () => {
+											await authClient.signOut({
+												fetchOptions: {
+													onSuccess: () => {
+														window.location.href = "/";
+													},
+												},
+											});
+										}}
+									>
+										Sign out
+									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</>

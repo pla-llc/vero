@@ -33,7 +33,7 @@ export default function Hero({ signedIn }: { signedIn: boolean }) {
 						, hands-free.
 					</p>
 					<div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-						<Link href={signedIn ? "/dashboard" : "/register"}>
+						<Link href={signedIn ? "/dashboard" : "/login"}>
 							<Button size="lg">
 								{signedIn
 									? "Go to dashboard"

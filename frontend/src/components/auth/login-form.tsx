@@ -47,7 +47,7 @@ const Login = () => {
 									return;
 								}
 
-								redirect("/");
+								redirect("/dashboard");
 							}}
 							className="min-w-sm flex w-full max-w-sm flex-col items-center gap-y-4 px-6"
 						>

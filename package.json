@@ -21,7 +21,8 @@
   "homepage": "https://github.com/pla-llc/vero#readme",
   "description": "",
   "dependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "inngest": "^3.43.1"
   },
   "devDependencies": {
     "prettier-plugin-tailwindcss": "^0.6.14"

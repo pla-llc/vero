@@ -5,17 +5,15 @@ import { VariantProps } from "class-variance-authority";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { RefObject, useRef, useState } from "react";
-import { Button, buttonVariants } from "../ui/button";
+import { Button, buttonVariants } from "./button";
 
 export default function Form({
 	action,
-	submitOnEnter = true,
 	children,
 	className,
 	...props
 }: {
 	action: (data: FormData) => Promise<void>;
-	submitOnEnter?: boolean;
 	children: (
 		ref: RefObject<HTMLFormElement | null>,
 		loading: boolean,
@@ -35,13 +33,6 @@ export default function Form({
 				setLoading(false);
 			}}
 			className={className}
-			onKeyDown={(e) => {
-				if (e.key === "Enter" && !loading && submitOnEnter) {
-					e.preventDefault();
-					setLoading(true);
-					ref.current?.requestSubmit();
-				}
-			}}
 		>
 			{children(ref, loading, setLoading)}
 		</form>
@@ -74,12 +65,10 @@ export function SubmitButton({
 			)}
 			disabled={loading || disabled}
 			{...props}
-			onClick={(e) => {
-				e.preventDefault();
+			onClick={() => {
 				setLoading(true);
 				formRef.current?.requestSubmit();
 			}}
-			type="button"
 		>
 			{loading && (
 				<motion.div

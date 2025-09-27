@@ -9,7 +9,7 @@ import type {
 } from "hono";
 import { validator } from "hono/validator";
 import type * as v3 from "zod";
-import { SafeParseReturnType } from "zod/v3";
+import type { SafeParseReturnType } from "zod/v3";
 import type { ZodSafeParseResult as v4ZodSafeParseResult } from "zod/v4";
 import type * as v4 from "zod/v4/core";
 

@@ -1,11 +1,21 @@
 import { serve } from "@hono/node-server";
 import dotenv from "dotenv";
+import { cors } from "hono/cors";
 import { auth } from "./lib/auth";
 import { createHono } from "./lib/hono";
+import authRoutes from "./routes/auth";
+import flowsRoutes from "./routes/flows";
 
 dotenv.config();
 
-const app = createHono().basePath("/api").use("*", async (c, next) => {
+const app = createHono().basePath("/api").use("*", cors({
+  origin: "http://localhost:3000",
+	allowHeaders: ["Content-Type", "Authorization"],
+	allowMethods: ["POST", "GET", "OPTIONS"],
+	exposeHeaders: ["Content-Length"],
+	maxAge: 600,
+	credentials: true,
+})).use("*", async (c, next) => {
   const session = await auth.api.getSession({
     headers: c.req.raw.headers,
   });
@@ -19,7 +29,7 @@ const app = createHono().basePath("/api").use("*", async (c, next) => {
   c.set("user", session.user);
   c.set("session", session.session);
   return next();
-});
+}).route("/auth", authRoutes).route("/flows", flowsRoutes);
 
 serve({
   fetch: app.fetch,

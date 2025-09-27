@@ -24,6 +24,6 @@
       "@generated/*": ["../generated/prisma/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../backend/lib/validator.ts"],
   "exclude": ["node_modules"]
 }

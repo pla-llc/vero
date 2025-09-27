@@ -22,5 +22,8 @@
   "description": "",
   "dependencies": {
     "concurrently": "^9.2.1"
+  },
+  "devDependencies": {
+    "prettier-plugin-tailwindcss": "^0.6.14"
   }
 }

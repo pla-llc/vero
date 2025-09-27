@@ -9,3 +9,12 @@ export function createHono() {
 		};
 	}>();
 }
+
+export function createProtectedHono() {
+	return new Hono<{
+		Variables: {
+			user: typeof auth.$Infer.Session.user;
+			session: typeof auth.$Infer.Session.session;
+		};
+	}>();
+}

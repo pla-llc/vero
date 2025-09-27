@@ -32,7 +32,11 @@ export default function CreateFlowPage() {
 			>
 				{(ref, loading, setLoading) => (
 					<>
-						<Input placeholder="My new flow" />
+						<Input
+							placeholder="My new flow"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+						/>
 						<SubmitButton
 							loading={loading}
 							setLoading={setLoading}

@@ -1,0 +1,26 @@
+{
+  "name": "vero",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"cd backend && bun run start\" \"cd frontend && bun run dev\"",
+    "install-deps": "concurrently \"cd backend && bun install\" \"cd frontend && bun install\" \"cd prisma && bun install\"",
+    "db:generate": "cd prisma && bun run generate",
+    "db:push": "cd prisma && bun run push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pla-llc/vero.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pla-llc/vero/issues"
+  },
+  "homepage": "https://github.com/pla-llc/vero#readme",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

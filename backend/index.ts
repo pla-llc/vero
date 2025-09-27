@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import dotenv from "dotenv";
+import { cors } from "hono/cors";
 import { auth } from "./lib/auth";
 import { createHono } from "./lib/hono";
 import authRoutes from "./routes/auth";
@@ -26,6 +27,17 @@ const app = createHono()
 		c.set("session", session.session);
 		return next();
 	})
+	.use(
+		"*",
+		cors({
+			origin: "http://localhost:3000",
+			allowHeaders: ["Content-Type", "Authorization"],
+			allowMethods: ["POST", "GET", "OPTIONS"],
+			exposeHeaders: ["Content-Length"],
+			maxAge: 600,
+			credentials: true,
+		})
+	)
 	.route("/auth", authRoutes)
 	.route("/wallet", walletRoutes)
 	.route("/flows", flowRoutes)

@@ -1,11 +1,11 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
+import dotenv from "dotenv";
+import { createHono } from "./lib/hono";
+import authRouter from "./routes/auth";
 
-const app = new Hono().get("/", (c) =>
-  c.json({
-    message: "Hello World",
-  })
-);
+dotenv.config();
+
+const app = createHono().basePath("/api").route("/auth", authRouter);
 
 serve({
   fetch: app.fetch,

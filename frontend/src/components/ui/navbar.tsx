@@ -14,7 +14,15 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { AuthState } from "@/hooks/use-auth-state";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "./dropdown-menu";
 
 const ITEMS = [
 	{
@@ -40,7 +48,7 @@ const ITEMS = [
 	{ label: "Contact", href: "#" },
 ];
 
-const Navbar = () => {
+const Navbar = ({ authState }: { authState: AuthState }) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -114,33 +122,59 @@ const Navbar = () => {
 
 				{/* Auth Buttons */}
 				<div className="flex items-center gap-2.5">
-					<Link href="/login" className="max-lg:hidden">
-						<Button variant="outline">
-							<span className="relative z-10">Login</span>
-						</Button>
-					</Link>
+					{authState.signedIn ? (
+						<>
+							<DropdownMenu>
+								<DropdownMenuTrigger className="cursor-pointer">
+									<Avatar>
+										<AvatarImage
+											src={authState.user.image!}
+										/>
+										<AvatarFallback>
+											{authState.user.name?.charAt(0)}
+										</AvatarFallback>
+									</Avatar>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuItem>Yellow</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</>
+					) : (
+						<>
+							<Link href="/login" className="max-lg:hidden">
+								<Button variant="outline">
+									<span className="relative z-10">Login</span>
+								</Button>
+							</Link>
 
-					{/* Hamburger Menu Button (Mobile Only) */}
-					<button
-						className="text-muted-foreground relative flex size-8 lg:hidden"
-						onClick={() => setIsMenuOpen(!isMenuOpen)}
-					>
-						<span className="sr-only">Open main menu</span>
-						<div className="absolute left-1/2 top-1/2 block w-[18px] -translate-x-1/2 -translate-y-1/2">
-							<span
-								aria-hidden="true"
-								className={`absolute block h-0.5 w-full rounded-full bg-current transition duration-500 ease-in-out ${isMenuOpen ? "rotate-45" : "-translate-y-1.5"}`}
-							></span>
-							<span
-								aria-hidden="true"
-								className={`absolute block h-0.5 w-full rounded-full bg-current transition duration-500 ease-in-out ${isMenuOpen ? "opacity-0" : ""}`}
-							></span>
-							<span
-								aria-hidden="true"
-								className={`absolute block h-0.5 w-full rounded-full bg-current transition duration-500 ease-in-out ${isMenuOpen ? "-rotate-45" : "translate-y-1.5"}`}
-							></span>
-						</div>
-					</button>
+							{/* Hamburger Menu Button (Mobile Only) */}
+							<button
+								className="text-muted-foreground relative flex size-8 lg:hidden"
+								onClick={() => setIsMenuOpen(!isMenuOpen)}
+							>
+								<span className="sr-only">Open main menu</span>
+								<div className="absolute left-1/2 top-1/2 block w-[18px] -translate-x-1/2 -translate-y-1/2">
+									<span
+										aria-hidden="true"
+										className={`absolute block h-0.5 w-full rounded-full bg-current transition duration-500 ease-in-out ${isMenuOpen ? "rotate-45" : "-translate-y-1.5"}`}
+									></span>
+									<span
+										aria-hidden="true"
+										className={`absolute block h-0.5 w-full rounded-full bg-current transition duration-500 ease-in-out ${isMenuOpen ? "opacity-0" : ""}`}
+									></span>
+									<span
+										aria-hidden="true"
+										className={`absolute block h-0.5 w-full rounded-full bg-current transition duration-500 ease-in-out ${isMenuOpen ? "-rotate-45" : "translate-y-1.5"}`}
+									></span>
+								</div>
+							</button>
+							<Link
+								href="/login"
+								className="max-lg:hidden"
+							></Link>
+						</>
+					)}
 				</div>
 			</div>
 

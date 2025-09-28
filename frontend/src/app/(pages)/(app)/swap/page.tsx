@@ -114,7 +114,7 @@ export default function SwapPage() {
     }
   }, [tokens, customTokens]);
 
-  // Get quote when amount or tokens change
+  // Get quote when amount or tokens change (with aggressive debouncing)
   useEffect(() => {
     const getQuote = async () => {
       if (!amount || parseFloat(amount) <= 0) {
@@ -154,7 +154,8 @@ export default function SwapPage() {
       }
     };
 
-    const debounceTimer = setTimeout(getQuote, 800);
+    // Much longer debounce to prevent API spam
+    const debounceTimer = setTimeout(getQuote, 2000);
     return () => clearTimeout(debounceTimer);
   }, [amount, fromToken, toToken, tokens, customTokens]);
 

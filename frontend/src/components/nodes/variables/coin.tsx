@@ -41,14 +41,7 @@ const defaultCoins: Coin[] = [
 		symbol: "USDC",
 		contractAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 		icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Circle_USDC_Logo.svg/1200px-Circle_USDC_Logo.svg.png",
-	},
-	{
-		id: "test",
-		name: "Test",
-		symbol: "TEST",
-		contractAddress: "TEST",
-		icon: "https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png",
-	},
+	}
 ];
 
 interface CoinVariableProps {
@@ -66,23 +59,64 @@ export default function CoinVariable({
 }: CoinVariableProps) {
 	const [open, setOpen] = React.useState(false);
 	const [searchTerm, setSearchTerm] = React.useState("");
+	const [searchResults, setSearchResults] = React.useState<Coin[]>([]);
+	const [isLoading, setIsLoading] = React.useState(false);
 
-	const selectedCoin = defaultCoins.find(
+	const selectedCoin = [...defaultCoins, ...searchResults].find(
 		(coin) => coin.contractAddress === value || coin.id === value
 	);
 
-	const filteredCoins = defaultCoins.filter(
-		(coin) =>
-			coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			coin.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			coin.contractAddress
-				?.toLowerCase()
-				.includes(searchTerm.toLowerCase())
+	// Debounced search function for Solana tokens
+	const searchTokens = React.useCallback(
+		async (query: string) => {
+			if (!query.trim() || query.length < 2) {
+				setSearchResults([]);
+				return;
+			}
+
+			setIsLoading(true);
+			try {
+				const response = await fetch(`http://localhost:3001/api/birdeye/search/${encodeURIComponent(query)}`);
+				if (response.ok) {
+					const data = await response.json();
+					const tokens = data.tokens?.map((token: any) => ({
+						id: token.address,
+						name: token.name,
+						symbol: token.symbol,
+						contractAddress: token.address,
+						icon: token.icon
+					})) || [];
+					setSearchResults(tokens);
+				}
+			} catch (error) {
+				console.error("Error searching tokens:", error);
+				setSearchResults([]);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[]
 	);
+
+	// Debounce search
+	React.useEffect(() => {
+		const timer = setTimeout(() => {
+			if (searchTerm && searchTerm.length >= 2) {
+				searchTokens(searchTerm);
+			} else {
+				setSearchResults([]);
+			}
+		}, 300);
+
+		return () => clearTimeout(timer);
+	}, [searchTerm, searchTokens]);
+
+	const allCoins = searchTerm ? searchResults : defaultCoins;
 
 	const handleSelect = (coin: Coin) => {
 		onValueChange?.(coin.contractAddress!);
 		setOpen(false);
+		setSearchTerm("");
 	};
 
 	return (
@@ -117,58 +151,63 @@ export default function CoinVariable({
 				<DialogTitle></DialogTitle>
 				<Command>
 					<CommandInput
-						placeholder="Search coins by contact address..."
+						placeholder="Search Solana tokens..."
 						value={searchTerm}
 						onValueChange={setSearchTerm}
 						className="h-7 text-xs"
 					/>
 					<CommandList className="max-h-[160px]">
-						<CommandEmpty className="py-3 text-xs">
-							No coins found.
-						</CommandEmpty>
-						<CommandGroup heading="Coins">
-							{filteredCoins.map((coin) => (
-								<CommandItem
-									key={coin.id}
-									value={coin.id}
-									onSelect={() => handleSelect(coin)}
-									className="flex items-center gap-1.5 px-1.5 py-1"
-								>
-									<img
-										src={coin.icon}
-										className="h-4 w-4 flex-shrink-0 rounded-full"
-									/>
-									<div className="flex min-w-0 flex-1 flex-col">
-										<div className="flex min-w-0 items-center gap-1">
-											<span className="text-xs font-medium">
-												{coin.symbol}
-											</span>
-											<span className="text-muted-foreground min-w-0 flex-1 truncate text-xs">
-												{coin.name}
-											</span>
+						{isLoading ? (
+							<div className="py-3 text-xs text-center text-muted-foreground">
+								Searching...
+							</div>
+						) : allCoins.length === 0 ? (
+							<CommandEmpty className="py-3 text-xs">
+								{searchTerm ? "No tokens found." : "Type to search Solana tokens..."}
+							</CommandEmpty>
+						) : (
+							<CommandGroup heading={searchTerm ? "Search Results" : "Popular Tokens"}>
+								{allCoins.map((coin) => (
+									<CommandItem
+										key={coin.id}
+										value={coin.id}
+										onSelect={() => handleSelect(coin)}
+										className="flex items-center gap-1.5 px-1.5 py-1"
+									>
+										<img
+											src={coin.icon}
+											className="h-4 w-4 flex-shrink-0 rounded-full"
+											alt={coin.name}
+										/>
+										<div className="flex min-w-0 flex-1 flex-col">
+											<div className="flex min-w-0 items-center gap-1">
+												<span className="text-xs font-medium">
+													{coin.symbol}
+												</span>
+												<span className="text-muted-foreground min-w-0 flex-1 truncate text-xs">
+													{coin.name}
+												</span>
+											</div>
+											{coin.contractAddress && (
+												<span className="text-muted-foreground truncate text-xs opacity-70">
+													{coin.contractAddress.slice(0, 6)}
+													...
+													{coin.contractAddress.slice(-3)}
+												</span>
+											)}
 										</div>
-										{coin.contractAddress && (
-											<span className="text-muted-foreground truncate text-xs opacity-70">
-												{coin.contractAddress.slice(
-													0,
-													6
-												)}
-												...
-												{coin.contractAddress.slice(-3)}
-											</span>
-										)}
-									</div>
 									<CheckIcon
 										className={cn(
 											"ml-auto h-3 w-3",
-											selectedCoin?.id === coin.id
+											selectedCoin?.contractAddress === coin.contractAddress
 												? "opacity-100"
 												: "opacity-0"
 										)}
 									/>
-								</CommandItem>
-							))}
-						</CommandGroup>
+									</CommandItem>
+								))}
+							</CommandGroup>
+						)}
 					</CommandList>
 				</Command>
 			</DialogContent>

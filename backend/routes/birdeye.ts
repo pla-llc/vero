@@ -70,6 +70,84 @@ const app = createHono()
 			console.error("Error getting new listings:", error);
 			return c.json({ error: "Failed to fetch new listings" }, 500);
 		}
+	})
+
+	// Get Solana token info by address using DexScreener
+	.get("/token/:address", async (c) => {
+		try {
+			const address = c.req.param("address");
+			
+			if (!address) {
+				return c.json({ error: "Token address is required" }, 400);
+			}
+
+			// Use DexScreener API (free, no API key required)
+			const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`);
+			
+			if (!response.ok) {
+				throw new Error(`DexScreener API error: ${response.status}`);
+			}
+
+			const data = await response.json();
+			
+			if (!data.pairs || data.pairs.length === 0) {
+				return c.json({ error: "Token not found" }, 404);
+			}
+
+			// Get the first Solana pair
+			const solanaPair = data.pairs.find((pair: any) => pair.chainId === "solana") || data.pairs[0];
+			
+			// Return simplified token data
+			return c.json({
+				address: address,
+				name: solanaPair.baseToken.name,
+				symbol: solanaPair.baseToken.symbol,
+				icon: solanaPair.info?.imageUrl || null,
+				price: parseFloat(solanaPair.priceUsd) || 0
+			});
+			
+		} catch (error) {
+			console.error("Error getting token data:", error);
+			return c.json({ error: "Failed to fetch token data" }, 500);
+		}
+	})
+
+	// Search Solana tokens by query
+	.get("/search/:query", async (c) => {
+		try {
+			const query = c.req.param("query");
+			
+			if (!query || query.length < 2) {
+				return c.json({ error: "Search query must be at least 2 characters" }, 400);
+			}
+
+			// Use DexScreener search API
+			const response = await fetch(`https://api.dexscreener.com/latest/dex/search/?q=${encodeURIComponent(query)}`);
+			
+			if (!response.ok) {
+				throw new Error(`DexScreener API error: ${response.status}`);
+			}
+
+			const data = await response.json();
+			
+			// Filter for Solana tokens only and return simplified results
+			const solanaTokens = data.pairs
+				?.filter((pair: any) => pair.chainId === "solana")
+				?.slice(0, 10)
+				?.map((pair: any) => ({
+					address: pair.baseToken.address,
+					name: pair.baseToken.name,
+					symbol: pair.baseToken.symbol,
+					icon: pair.info?.imageUrl || null,
+					price: parseFloat(pair.priceUsd) || 0
+				})) || [];
+			
+			return c.json({ tokens: solanaTokens });
+			
+		} catch (error) {
+			console.error("Error searching tokens:", error);
+			return c.json({ error: "Failed to search tokens" }, 500);
+		}
 	});
 
 export default app;

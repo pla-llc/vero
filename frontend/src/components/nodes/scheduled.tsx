@@ -1,6 +1,6 @@
 "use client";
 
-import { createClientApi } from "@/lib/hono/client";
+import { useNodes } from "@/app/(pages)/(app)/flow/[id]/_components/context";
 import { Node, NodeProps } from "@xyflow/react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -15,12 +15,37 @@ export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 	const [date, setDate] = useState<Date | undefined>(undefined);
 	const [time, setTime] = useState<string>("00:00");
 
+	const { nodes, setNodeData } = useNodes();
+	const [node, setNode] = useState(
+		nodes.find((node) => node.id === props.id)
+	);
+
 	const [convertedDate, setConvertedDate] = useState<string | undefined>(
 		undefined
 	);
 
 	useEffect(() => {
-		if (!date || !time) return;
+		if (!node) return;
+
+		let date = new Date();
+		if (node.data.date) {
+			date = new Date(node.data.date as string);
+		}
+
+		setDate(date);
+
+		const hour = date.getHours();
+		const minute = date.getMinutes();
+
+		const hoursStr = hour.toString().length === 1 ? `0${hour}` : hour;
+		const minutesStr =
+			minute.toString().length === 1 ? `0${minute}` : minute;
+
+		setTime(`${hoursStr}:${minutesStr}`);
+	}, []);
+
+	useEffect(() => {
+		if (!date || !time || !node) return;
 
 		const utcDate = new Date(
 			date.getTime() + date.getTimezoneOffset() * 60000
@@ -37,7 +62,15 @@ export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 		newDate.setMinutes(parseInt(minute));
 		newDate.setSeconds(0);
 		setConvertedDate(newDate.toISOString());
+		setNodeData(props.id, {
+			...node.data,
+			date: newDate.toISOString(),
+		});
 	}, [date, time]);
+
+	useEffect(() => {
+		setNode(nodes.find((node) => node.id === props.id));
+	}, [nodes]);
 
 	return (
 		<BasicNode id="schedule-trigger">
@@ -68,9 +101,14 @@ export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 								onSelect={setDate}
 								modifiers={{
 									disabled: (date) => {
+										const currentDate = new Date();
+										currentDate.setDate(
+											currentDate.getDate() - 1
+										);
+
 										return (
-											date.getDate() <
-											new Date().getDate()
+											date.getTime() <
+											currentDate.getTime()
 										);
 									},
 								}}
@@ -88,22 +126,6 @@ export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 							value={time}
 							onChange={(e) => setTime(e.target.value)}
 						/>
-						<button
-							onClick={async () => {
-								if (!convertedDate) return;
-
-								const api = createClientApi();
-								const res = await api.tracking.schedule.$post({
-									json: {
-										date: convertedDate,
-									},
-								});
-								const data = await res.json();
-								console.log(JSON.stringify(data, null, 2));
-							}}
-						>
-							add schedule
-						</button>
 					</div>
 				</div>
 			</div>

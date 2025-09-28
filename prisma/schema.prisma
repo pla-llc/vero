@@ -107,6 +107,9 @@ model Flow {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   triggeredAt DateTime?
+
+  nodes String @default("{}")
+  viewport String @default("{}")
 }
 
 model TrackingData {

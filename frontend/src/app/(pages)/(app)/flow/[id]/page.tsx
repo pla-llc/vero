@@ -1,4 +1,6 @@
 import { createApi } from "@/lib/hono/server";
+import { redirect } from "next/navigation";
+import NodesContextProvider from "./_components/context";
 import Flow from "./_components/flow";
 
 export default async function FlowPage({
@@ -15,5 +17,10 @@ export default async function FlowPage({
 	});
 	const flow = await res.json();
 
-	return <Flow flow={flow} />;
+	if (!flow) redirect("/dashboard");
+	return (
+		<NodesContextProvider flowJson={flow.nodes}>
+			<Flow id={id} viewport={flow.viewport} />
+		</NodesContextProvider>
+	);
 }

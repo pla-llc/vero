@@ -1,5 +1,6 @@
 "use client";
 
+import { useNodes } from "@/app/(pages)/(app)/flow/[id]/_components/context";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -9,16 +10,40 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Node, NodeProps } from "@xyflow/react";
-import * as React from "react";
+import { useEffect, useState } from "react";
 import BasicNode from "./basic-node";
 import CoinVariable from "./variables/coin";
 
 export default function ConvertNode(props: NodeProps<Node<{}>>) {
-	const [fromCoin, setFromCoin] = React.useState("SOL");
-	const [toCoin, setToCoin] = React.useState("USDC");
-	const [amount, setAmount] = React.useState("");
-	const [unit, setUnit] = React.useState("%");
+	const { nodes, setNodeData } = useNodes();
+	const [node, setNode] = useState(
+		nodes.find((node) => node.id === props.id)
+	);
 
+	useEffect(() => {
+		if (!node) return;
+
+		const coinData = node.data;
+		if (!node.data.fromCoin) {
+			coinData.fromCoin = "SOL";
+		}
+		if (!node.data.toCoin) {
+			coinData.toCoin = "USDC";
+		}
+		if (!node.data.amount) {
+			coinData.amount = 1;
+		}
+		if (!node.data.swapType) {
+			coinData.swapType = "Coin";
+		}
+		setNodeData(props.id, coinData);
+	}, []);
+
+	useEffect(() => {
+		setNode(nodes.find((node) => node.id === props.id));
+	}, [nodes]);
+
+	if (!node) return null;
 	return (
 		<BasicNode id="convert">
 			<div className="flex w-full flex-col gap-3">
@@ -32,8 +57,13 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 						</label>
 						<CoinVariable
 							placeholder="Select coin..."
-							value={fromCoin}
-							onValueChange={setFromCoin}
+							value={(node.data.fromCoin as string) || "SOL"}
+							onValueChange={(value) =>
+								setNodeData(props.id, {
+									...node.data,
+									fromCoin: value,
+								})
+							}
 						/>
 					</div>
 					<div className="flex items-center justify-between">
@@ -42,28 +72,50 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 						</label>
 						<CoinVariable
 							placeholder="Select coin..."
-							value={toCoin}
-							onValueChange={setToCoin}
+							value={(node.data.toCoin as string) || "USDC"}
+							onValueChange={(value) =>
+								setNodeData(props.id, {
+									...node.data,
+									toCoin: value,
+								})
+							}
 						/>
 					</div>
 					<div className="flex items-center gap-1">
 						<Input
 							type="number"
-							placeholder="0"
-							value={amount}
-							onChange={(e) => setAmount(e.target.value)}
+							placeholder="1"
+							value={
+								Math.max(node.data.amount as number, 0.01) || 1
+							}
+							onChange={(e) =>
+								setNodeData(props.id, {
+									...node.data,
+									amount: e.target.value,
+								})
+							}
 							className="h-8 flex-1 text-xs"
+							min={0.01}
+							step={0.1}
 						/>
-						<Select value={unit} onValueChange={setUnit}>
+						<Select
+							value={(node.data.swapType as string) || "Coin"}
+							onValueChange={(value) => {
+								setNodeData(props.id, {
+									...node.data,
+									swapType: value,
+								});
+							}}
+						>
 							<SelectTrigger
 								size="sm"
-								className="h-8 w-fit px-2 text-xs"
+								className="h-8 w-fit min-w-[90px] px-2 text-xs"
 							>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={fromCoin}>
-									{fromCoin}
+								<SelectItem value={"coin"}>
+									{(node.data.fromCoin as string) || "Coin"}
 								</SelectItem>
 								<SelectItem value="%">%</SelectItem>
 							</SelectContent>

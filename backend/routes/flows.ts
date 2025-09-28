@@ -52,7 +52,44 @@ const app = createProtectedHono()
 		async (c) => {
 			const { id } = c.req.valid("json");
 
+			const flow = await prisma.flow.findUnique({
+				where: {
+					id,
+				},
+			});
+
 			return c.json({});
+		}
+	)
+	.post(
+		"/save",
+		schemaValidator(
+			"json",
+			z.object({
+				id: z.string(),
+				nodes: z.array(z.any()),
+				edges: z.array(z.any()),
+				viewport: z.string(),
+			})
+		),
+		async (c) => {
+			const { id, nodes, edges, viewport } = c.req.valid("json");
+			const nodesJson = JSON.stringify({
+				nodes,
+				edges,
+			});
+
+			await prisma.flow.update({
+				where: {
+					id,
+				},
+				data: {
+					nodes: nodesJson,
+					viewport,
+				},
+			});
+
+			return c.json({ message: "Flow saved" });
 		}
 	);
 

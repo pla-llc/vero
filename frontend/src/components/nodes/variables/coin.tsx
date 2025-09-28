@@ -41,7 +41,7 @@ const defaultCoins: Coin[] = [
 		symbol: "USDC",
 		contractAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 		icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Circle_USDC_Logo.svg/1200px-Circle_USDC_Logo.svg.png",
-	}
+	},
 ];
 
 interface CoinVariableProps {
@@ -67,36 +67,36 @@ export default function CoinVariable({
 	);
 
 	// Debounced search function for Solana tokens
-	const searchTokens = React.useCallback(
-		async (query: string) => {
-			if (!query.trim() || query.length < 2) {
-				setSearchResults([]);
-				return;
-			}
+	const searchTokens = React.useCallback(async (query: string) => {
+		if (!query.trim() || query.length < 2) {
+			setSearchResults([]);
+			return;
+		}
 
-			setIsLoading(true);
-			try {
-				const response = await fetch(`http://localhost:3001/api/birdeye/search/${encodeURIComponent(query)}`);
-				if (response.ok) {
-					const data = await response.json();
-					const tokens = data.tokens?.map((token: any) => ({
+		setIsLoading(true);
+		try {
+			const response = await fetch(
+				`http://localhost:3001/api/birdeye/search/${encodeURIComponent(query)}`
+			);
+			if (response.ok) {
+				const data = await response.json();
+				const tokens =
+					data.tokens?.map((token: any) => ({
 						id: token.address,
 						name: token.name,
 						symbol: token.symbol,
 						contractAddress: token.address,
-						icon: token.icon
+						icon: token.icon,
 					})) || [];
-					setSearchResults(tokens);
-				}
-			} catch (error) {
-				console.error("Error searching tokens:", error);
-				setSearchResults([]);
-			} finally {
-				setIsLoading(false);
+				setSearchResults(tokens);
 			}
-		},
-		[]
-	);
+		} catch (error) {
+			console.error("Error searching tokens:", error);
+			setSearchResults([]);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
 
 	// Debounce search
 	React.useEffect(() => {
@@ -158,15 +158,23 @@ export default function CoinVariable({
 					/>
 					<CommandList className="max-h-[160px]">
 						{isLoading ? (
-							<div className="py-3 text-xs text-center text-muted-foreground">
+							<div className="text-muted-foreground py-3 text-center text-xs">
 								Searching...
 							</div>
 						) : allCoins.length === 0 ? (
 							<CommandEmpty className="py-3 text-xs">
-								{searchTerm ? "No tokens found." : "Type to search Solana tokens..."}
+								{searchTerm
+									? "No tokens found."
+									: "Type to search Solana tokens..."}
 							</CommandEmpty>
 						) : (
-							<CommandGroup heading={searchTerm ? "Search Results" : "Popular Tokens"}>
+							<CommandGroup
+								heading={
+									searchTerm
+										? "Search Results"
+										: "Popular Tokens"
+								}
+							>
 								{allCoins.map((coin) => (
 									<CommandItem
 										key={coin.id}
@@ -190,20 +198,26 @@ export default function CoinVariable({
 											</div>
 											{coin.contractAddress && (
 												<span className="text-muted-foreground truncate text-xs opacity-70">
-													{coin.contractAddress.slice(0, 6)}
+													{coin.contractAddress.slice(
+														0,
+														6
+													)}
 													...
-													{coin.contractAddress.slice(-3)}
+													{coin.contractAddress.slice(
+														-3
+													)}
 												</span>
 											)}
 										</div>
-									<CheckIcon
-										className={cn(
-											"ml-auto h-3 w-3",
-											selectedCoin?.contractAddress === coin.contractAddress
-												? "opacity-100"
-												: "opacity-0"
-										)}
-									/>
+										<CheckIcon
+											className={cn(
+												"ml-auto h-3 w-3",
+												selectedCoin?.contractAddress ===
+													coin.contractAddress
+													? "opacity-100"
+													: "opacity-0"
+											)}
+										/>
 									</CommandItem>
 								))}
 							</CommandGroup>

@@ -2,6 +2,7 @@
 
 import ConvertNode from "@/components/nodes/convert";
 import ScheduleNode from "@/components/nodes/scheduled";
+import SendNode from "@/components/nodes/send";
 import { Card, CardContent } from "@/components/ui/card";
 import { DraggableNode } from "@/components/ui/draggable-node";
 import { getNodeType, NodeTypes } from "@/data/node-types";
@@ -125,6 +126,7 @@ function FlowCanvas({ id, viewport }: { id: string; viewport: string }) {
 				nodeTypes={{
 					convert: ConvertNode,
 					"schedule-trigger": ScheduleNode,
+					send: SendNode,
 				}}
 			>
 				<Background color="#505050" variant={BackgroundVariant.Dots} />

@@ -309,7 +309,7 @@ const app = createHono()
 				address
 			);
 			return c.json({ wallet });
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Error adding saved wallet:", error);
 			return c.json(
 				{ error: error.message || "Failed to add wallet" },

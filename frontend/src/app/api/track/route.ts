@@ -18,6 +18,7 @@ export async function GET(request: Request) {
 		for (const flow of flows) {
 			const nodes = JSON.parse(flow.nodes);
 			if (flow.nodes) {
+				if (!nodes.nodes) continue;
 				for (const node of nodes.nodes) {
 					if (
 						node.type === "schedule-trigger" &&

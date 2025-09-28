@@ -86,7 +86,7 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 							type="number"
 							placeholder="1"
 							value={
-								Math.max(node.data.amount as number, 0.01) || 1
+								Math.max(node.data.amount as number, 0.001) || 1
 							}
 							onChange={(e) =>
 								setNodeData(props.id, {

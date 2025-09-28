@@ -68,7 +68,7 @@ export default function CoinVariable({
 	const [searchTerm, setSearchTerm] = React.useState("");
 
 	const selectedCoin = defaultCoins.find(
-		(coin) => coin.symbol === value || coin.id === value
+		(coin) => coin.contractAddress === value || coin.id === value
 	);
 
 	const filteredCoins = defaultCoins.filter(
@@ -81,7 +81,7 @@ export default function CoinVariable({
 	);
 
 	const handleSelect = (coin: Coin) => {
-		onValueChange?.(coin.symbol);
+		onValueChange?.(coin.contractAddress!);
 		setOpen(false);
 	};
 

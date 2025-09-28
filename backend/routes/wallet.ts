@@ -1,7 +1,7 @@
 import { cors } from "hono/cors";
-import { createHono } from "../lib/hono";
-import { WalletService, TOKENS } from "../lib/wallet";
 import { auth } from "../lib/auth";
+import { createHono } from "../lib/hono";
+import { TOKENS, WalletService } from "../lib/wallet";
 
 const app = createHono()
 	.use(
@@ -244,6 +244,8 @@ const app = createHono()
 			// Handle custom token addresses
 			if (!inputMint) inputMint = inputToken;
 			if (!outputMint) outputMint = outputToken;
+
+			console.log(amount);
 
 			const result = await WalletService.executeSwap(
 				session.user.id,

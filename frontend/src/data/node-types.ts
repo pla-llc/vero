@@ -1,3 +1,5 @@
+import { WalletService } from "@backend/lib/wallet";
+
 export type NodeType = {
 	id: string;
 	name: string;
@@ -60,7 +62,37 @@ export const NodeTypes: NodeType[] = [
 			},
 		],
 		onCall: async (data, uid) => {
-			console.log("Swap trigger called");
+			const { fromCoin: from, toCoin: to, amount, swapType } = data;
+
+			const balance = await WalletService.getTokenBalance(uid, from);
+			if (swapType === "coin") {
+				if (balance < amount) {
+					console.error("Insufficient balance");
+					return;
+				}
+			}
+
+			let amountToSwap = amount;
+			if (swapType !== "coin") {
+				amountToSwap = (balance * amount) / 100;
+			}
+			console.log("uid:", uid);
+			console.log("from:", from);
+			console.log("to:", to);
+			console.log("amountToSwap:", amountToSwap);
+
+			const result = await WalletService.executeSwap(
+				uid,
+				from,
+				to,
+				amountToSwap * 10 ** 9,
+				50
+			);
+			if (!result.success) {
+				console.error("Failed to execute swap");
+			}
+
+			console.log("Swap successful");
 		},
 	},
 	{
@@ -75,9 +107,7 @@ export const NodeTypes: NodeType[] = [
 				value: "",
 			},
 		],
-		onCall: async (data, uid) => {
-			console.log("Schedule trigger called");
-		},
+		onCall: async (data, uid) => {},
 	},
 ];
 

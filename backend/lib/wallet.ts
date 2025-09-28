@@ -617,7 +617,8 @@ export class WalletService {
 			const userKeypair = this.recreateKeypair(wallet.privateKey);
 			const toPubkey = new PublicKey(toAddress);
 
-			if (tokenMint === "SOL") {
+			// Check if this is SOL by contract address
+			if (tokenMint === TOKENS.SOL || tokenMint === "So11111111111111111111111111111111111111112") {
 				// Send SOL
 				const transaction = new Transaction().add(
 					SystemProgram.transfer({
@@ -634,10 +635,8 @@ export class WalletService {
 				);
 				return { success: true, signature };
 			} else {
-				// Send SPL token (USDC)
-				const mintPubkey = new PublicKey(
-					tokenMint === "USDC" ? TOKENS.USDC : tokenMint
-				);
+				// Send SPL token - tokenMint should be the contract address
+				const mintPubkey = new PublicKey(tokenMint);
 
 				// Get source token account
 				const sourceTokenAccount = await getAssociatedTokenAddress(
@@ -654,8 +653,15 @@ export class WalletService {
 						toPubkey
 					);
 
-				// Get token decimals (USDC has 6 decimals)
-				const decimals = tokenMint === "USDC" ? 6 : 9;
+				// Default to 9 decimals (most Solana tokens), but handle known tokens
+				let decimals = 9;
+				if (tokenMint === TOKENS.USDC) {
+					decimals = 6;
+				} else if (tokenMint === TOKENS.USDT) {
+					decimals = 6;
+				}
+				// For other tokens, you might want to fetch decimals from on-chain metadata
+
 				const transferAmount = Math.floor(
 					amount * Math.pow(10, decimals)
 				);

@@ -136,13 +136,13 @@ const app = createHono()
 				return c.json({ error: "Unauthorized" }, 401);
 			}
 
-			const token = c.req.param("token").toUpperCase();
-			let tokenMint = TOKENS[token as keyof typeof TOKENS];
+		const token = c.req.param("token").toUpperCase();
+		let tokenMint: string = TOKENS[token as keyof typeof TOKENS];
 
-			// If not in predefined tokens, treat as custom address
-			if (!tokenMint) {
-				tokenMint = c.req.param("token");
-			}
+		// If not in predefined tokens, treat as custom address
+		if (!tokenMint) {
+			tokenMint = c.req.param("token");
+		}
 
 			const balance = await WalletService.getTokenBalance(
 				session.user.id,
@@ -321,13 +321,25 @@ const app = createHono()
 				return c.json({ error: "Unauthorized" }, 401);
 			}
 
-			const { toAddress, amount, token } = await c.req.json();
-			const result = await WalletService.sendTokens(
-				session.user.id,
-				toAddress,
-				token || "SOL",
-				amount
-			);
+		const { toAddress, amount, token } = await c.req.json();
+		
+		// Convert token symbol to contract address if needed
+		let tokenMint = token || "SOL";
+		if (typeof tokenMint === "string") {
+			// Check if it's a symbol in our TOKENS object
+			const contractAddress = TOKENS[tokenMint.toUpperCase() as keyof typeof TOKENS];
+			if (contractAddress) {
+				tokenMint = contractAddress;
+			}
+			// If it's already a contract address or custom token, use as-is
+		}
+		
+		const result = await WalletService.sendTokens(
+			session.user.id,
+			toAddress,
+			tokenMint,
+			amount
+		);
 			return c.json(result);
 		} catch (error) {
 			console.error("Error sending tokens:", error);

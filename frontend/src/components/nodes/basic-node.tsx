@@ -12,12 +12,12 @@ export default function BasicNode({
 	const nodeType = getNodeType(id)!;
 
 	return (
-		<div className="bg-card border-card-foreground/10 flex w-56 flex-col items-center justify-center gap-2 rounded-lg border p-4">
+		<div className="bg-card border-card-foreground/10 flex w-fit min-w-56 flex-col items-center justify-center gap-2 rounded-lg border p-4">
 			{children}
 			{!nodeType.isTrigger && (
-				<Handle type="source" position={Position.Top} />
+				<Handle type="target" position={Position.Top} />
 			)}
-			<Handle type="target" position={Position.Bottom} />
+			<Handle type="source" position={Position.Bottom} />
 		</div>
 	);
 }

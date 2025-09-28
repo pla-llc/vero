@@ -60,11 +60,17 @@ export const NodeTypes: NodeType[] = [
 		],
 	},
 	{
-		id: "trigger-test",
-		name: "Trigger test",
-		description: "Trigger test",
+		id: "schedule-trigger",
+		name: "Scheduled Trigger",
+		description: "Trigger the flow at a scheduled time.",
 		isTrigger: true,
-		variables: [],
+		variables: [
+			{
+				name: "date",
+				type: "string",
+				value: "",
+			},
+		],
 	},
 ];
 

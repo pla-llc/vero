@@ -19,6 +19,8 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 	const [node, setNode] = useState(
 		nodes.find((node) => node.id === props.id)
 	);
+	const [fromTokenBalance, setFromTokenBalance] = useState<number | null>(null);
+	const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
 	useEffect(() => {
 		if (!node) return;
@@ -43,6 +45,34 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 		setNode(nodes.find((node) => node.id === props.id));
 	}, [nodes]);
 
+	// Fetch balance for the selected fromCoin
+	useEffect(() => {
+		const fetchBalance = async () => {
+			if (!node?.data.fromCoin) return;
+			
+			setIsLoadingBalance(true);
+			try {
+				const response = await fetch(`http://localhost:3001/api/wallet/balance/${node.data.fromCoin}`, {
+					credentials: "include",
+				});
+				
+				if (response.ok) {
+					const data = await response.json();
+					setFromTokenBalance(data.balance);
+				} else {
+					setFromTokenBalance(null);
+				}
+			} catch (error) {
+				console.error("Error fetching balance:", error);
+				setFromTokenBalance(null);
+			} finally {
+				setIsLoadingBalance(false);
+			}
+		};
+
+		fetchBalance();
+	}, [node?.data.fromCoin]);
+
 	if (!node) return null;
 	return (
 		<BasicNode id="convert">
@@ -51,20 +81,36 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 					<span className="font-medium">Swap</span>
 				</div>
 				<div className="flex flex-col gap-2">
-					<div className="flex items-center justify-between">
-						<label className="text-muted-foreground text-xs">
-							From:
-						</label>
-						<CoinVariable
-							placeholder="Select coin..."
-							value={(node.data.fromCoin as string) || "SOL"}
-							onValueChange={(value) =>
-								setNodeData(props.id, {
-									...node.data,
-									fromCoin: value,
-								})
-							}
-						/>
+					<div className="flex flex-col gap-1">
+						<div className="flex items-center justify-between">
+							<label className="text-muted-foreground text-xs">
+								From:
+							</label>
+							<CoinVariable
+								placeholder="Select coin..."
+								value={(node.data.fromCoin as string) || "SOL"}
+								onValueChange={(value) =>
+									setNodeData(props.id, {
+										...node.data,
+										fromCoin: value,
+									})
+								}
+							/>
+						</div>
+						{(node.data.fromCoin as string) && (
+							<div className="flex items-center justify-between">
+								<span className="text-muted-foreground text-xs">Balance:</span>
+								<span className="text-xs">
+									{isLoadingBalance ? (
+										"Loading..."
+									) : fromTokenBalance !== null ? (
+										`${fromTokenBalance.toFixed(4)}`
+									) : (
+										"--"
+									)}
+								</span>
+							</div>
+						)}
 					</div>
 					<div className="flex items-center justify-between">
 						<label className="text-muted-foreground text-xs">

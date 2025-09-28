@@ -135,7 +135,6 @@ export const NodeTypes: NodeType[] = [
 			console.log("toAddress:", toAddress);
 			console.log("from:", from);
 			console.log("floatAmount:", floatAmount);
-			return;
 
 			const result = await WalletService.sendTokens(
 				uid,

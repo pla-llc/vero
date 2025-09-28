@@ -2,7 +2,6 @@ import { cors } from "hono/cors";
 import { createHono } from "../lib/hono";
 import { WalletService, TOKENS } from "../lib/wallet";
 import { auth } from "../lib/auth";
-import agent from "../lib/token";
 
 const app = createHono()
 	.use(
@@ -16,17 +15,6 @@ const app = createHono()
 			credentials: true,
 		})
 	)
-
-	.get("/top-gainers", async (c) => {
-		try {
-			const topGainers =
-				await agent.agent.methods.getCoingeckoTopGainers();
-			return c.json({ topGainers });
-		} catch (error) {
-			console.error("Error getting top gainers:", error);
-			return c.json({ error: "Failed to get top gainers" }, 500);
-		}
-	})
 
 	// Get user's wallet info
 	.get("/me", async (c) => {
@@ -59,27 +47,29 @@ const app = createHono()
 		}
 	})
 
-  .get('/private-key', async (c) => {
-    try {
-    const session = await auth.api.getSession({
-      headers: c.req.header() as any,
-    });
-    
-    if (!session) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
+	.get("/private-key", async (c) => {
+		try {
+			const session = await auth.api.getSession({
+				headers: c.req.header() as any,
+			});
 
-    const wallet = await WalletService.getWalletForUser(session.user.id);
-    if (!wallet) {
-      return c.json({ error: "Wallet not found" }, 404);
-    }
+			if (!session) {
+				return c.json({ error: "Unauthorized" }, 401);
+			}
 
-    return c.json({ privateKey: wallet.privateKey });
-  } catch (error) {
-    console.error("Error getting private key:", error);
-    return c.json({ error: "Internal server error" }, 500);
-  }
-})
+			const wallet = await WalletService.getWalletForUser(
+				session.user.id
+			);
+			if (!wallet) {
+				return c.json({ error: "Wallet not found" }, 404);
+			}
+
+			return c.json({ privateKey: wallet.privateKey });
+		} catch (error) {
+			console.error("Error getting private key:", error);
+			return c.json({ error: "Internal server error" }, 500);
+		}
+	})
 
 	// Get wallet balance
 	.get("/balance", async (c) => {

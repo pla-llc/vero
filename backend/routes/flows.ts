@@ -4,14 +4,20 @@ import { createProtectedHono } from "../lib/hono";
 import prisma from "../lib/prisma";
 import { schemaValidator } from "../lib/validator";
 
-async function callNode(nodeId: any, nodes: any, edges: any, data: any) {
+async function callNode(
+	nodeId: any,
+	nodes: any,
+	edges: any,
+	data: any,
+	uid: string
+) {
 	const node = nodes.find((node: any) => node.id === nodeId);
 	if (!node) return;
 
 	const nodeType = getNodeType(node.type);
 	if (!nodeType) return;
 
-	await nodeType.onCall(data);
+	await nodeType.onCall(data, uid);
 
 	const edge = edges.find((edge: any) => edge.source === nodeId);
 	if (!edge) return;
@@ -20,7 +26,7 @@ async function callNode(nodeId: any, nodes: any, edges: any, data: any) {
 	const nextNode = nodes.find((node: any) => node.id === nextNodeId);
 	if (!nextNode) return;
 
-	await callNode(nextNodeId, nodes, edges, nextNode.data);
+	await callNode(nextNodeId, nodes, edges, nextNode.data, uid);
 }
 
 const app = createProtectedHono()
@@ -97,7 +103,8 @@ const app = createProtectedHono()
 				triggerNode.id,
 				nodes.nodes,
 				edges,
-				triggerNode.data
+				triggerNode.data,
+				flow.userId
 			);
 
 			return c.json({});

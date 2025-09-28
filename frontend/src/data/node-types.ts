@@ -4,6 +4,7 @@ export type NodeType = {
 	description: string;
 	isTrigger: boolean;
 	variables: NodeVariable[];
+	onCall: (data: any) => Promise<void>;
 };
 
 export type NodeVariable =
@@ -58,6 +59,9 @@ export const NodeTypes: NodeType[] = [
 				value: "coin",
 			},
 		],
+		onCall: async (data) => {
+			console.log("Swap trigger called");
+		},
 	},
 	{
 		id: "schedule-trigger",
@@ -71,6 +75,9 @@ export const NodeTypes: NodeType[] = [
 				value: "",
 			},
 		],
+		onCall: async (data) => {
+			console.log("Schedule trigger called");
+		},
 	},
 ];
 

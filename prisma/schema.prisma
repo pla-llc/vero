@@ -21,6 +21,7 @@ model User {
   accounts      Account[]
   wallet        Wallet?
   savedWallets  SavedWallet[]
+  flows         Flow[]
 
   @@unique([email])
   @@map("user")
@@ -110,6 +111,9 @@ model Flow {
 
   nodes String @default("{}")
   viewport String @default("{}")
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TrackingData {

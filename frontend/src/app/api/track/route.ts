@@ -1,4 +1,5 @@
 import { createApi } from "@/lib/hono/server";
+import prisma from "@backend/lib/prisma";
 
 export const maxDuration = Infinity;
 export async function GET(request: Request) {
@@ -12,14 +13,29 @@ export async function GET(request: Request) {
 		if (!trackingData) continue;
 
 		const currentDate = new Date();
-		for (const schedule of trackingData.times) {
-			const scheduleDate = new Date(schedule);
-			if (scheduleDate < currentDate) continue;
 
-			const diff = scheduleDate.getTime() - currentDate.getTime();
-			if (diff < 0) continue;
+		const flows = await prisma.flow.findMany();
+		for (const flow of flows) {
+			const nodes = JSON.parse(flow.nodes);
+			if (flow.nodes) {
+				for (const node of nodes.nodes) {
+					if (
+						node.type === "schedule-trigger" &&
+						trackingData.times.includes(node.data.date)
+					) {
+						const scheduleDate = new Date(node.data.date);
+						const diff =
+							scheduleDate.getTime() - currentDate.getTime();
+						if (diff > 0) continue;
 
-			// trigger the flow
+						api.flows.trigger.$post({
+							json: {
+								id: flow.id,
+							},
+						});
+					}
+				}
+			}
 		}
 
 		await api.tracking.schedule.$delete();

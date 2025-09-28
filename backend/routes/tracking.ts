@@ -26,10 +26,6 @@ const app = createHono()
 			return new Date(time).getTime() > currentDate.getTime();
 		});
 
-		if (newTimes.length !== trackingData.times.length) {
-			console.log("Schedule deleted");
-		}
-
 		await prisma.trackingData.update({
 			where: {
 				id: "main",

@@ -1,9 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, Copy, ExternalLink, RefreshCw, CheckCircle, Brain, ArrowUpDown, Zap, Plus, Send, Trash2 } from "lucide-react";
+import { 
+  Wallet, 
+  Copy, 
+  ExternalLink, 
+  RefreshCw, 
+  CheckCircle, 
+  ArrowUpDown, 
+  Plus, 
+  Send, 
+  TrendingUp,
+  Eye,
+  BarChart3,
+  DollarSign,
+  Activity
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -266,148 +282,211 @@ export default function DashboardPage() {
   }
 
   return (
-    <section className="relative py-32">
-      <div className="container">
-        <div className="text-center">
-          <h1 className="mx-auto mb-3 mt-4 max-w-3xl text-balance text-4xl font-semibold lg:mb-7 lg:text-7xl">
-            Your Solana Wallet
-          </h1>
-          <p className="text-muted-foreground mx-auto max-w-3xl lg:text-xl">
-            Automatically funded and ready for
-            <span className="text-primary relative top-[5px] mx-2 inline-flex font-medium md:top-[3px]">
-              <Brain className="mr-1 w-5" />
-              Complex
-            </span>
-            transactions on Solana mainnet
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Portfolio</h1>
+          <p className="text-muted-foreground">
+            Track your Solana assets and transactions
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-            <Button onClick={refreshData} disabled={refreshing} size="lg">
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? "Refreshing..." : "Refresh Balance"}
-            </Button>
-            {wallet && (
-              <Button onClick={openInExplorer} size="lg" variant="ghost">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View on Explorer
-              </Button>
-            )}
-          </div>
         </div>
+        <div className="flex gap-2">
+          <Button onClick={refreshData} disabled={refreshing} variant="outline">
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? "Syncing..." : "Refresh"}
+          </Button>
+          {wallet && (
+            <Button onClick={openInExplorer} variant="outline">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Explorer
+            </Button>
+          )}
+        </div>
+      </div>
 
-        {wallet && (
-          <div className="mt-16 max-w-4xl mx-auto space-y-8">
-            {/* Portfolio Overview */}
-            <div className="text-center space-y-4">
-              <div className="space-y-2">
-                <p className="text-muted-foreground">Total Portfolio Value</p>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-6xl lg:text-8xl font-bold text-primary">
-                    ${totalValue.toFixed(2)}
-                  </span>
-                  <span className="text-2xl lg:text-3xl text-muted-foreground">USD</span>
+      {wallet && (
+        <div className="space-y-6">
+          {/* Portfolio Value Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Portfolio</CardTitle>
+                <DollarSign className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  ${totalValue.toFixed(2)}
                 </div>
-                <p className="text-muted-foreground">
-                  {portfolio.length} tokens • {portfolio.reduce((sum, token) => sum + token.balance, 0).toFixed(6)} total balance
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  {portfolio.length} assets
                 </p>
-              </div>
-              
-              <div className="flex justify-center gap-4">
-                <Badge variant="default">
-                  <CheckCircle className="mr-1 w-3 h-3" />
-                  Activated & Ready
-                </Badge>
-                <Link href="/swap">
-                  <Button size="sm">
-                    <ArrowUpDown className="mr-1 w-4 h-4" />
-                    Swap Tokens
-                  </Button>
-                </Link>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            {/* Token Holdings */}
-            {portfolio.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-semibold text-center">Your Holdings</h2>
-                <div className="grid gap-3">
-                  {portfolio.map((token) => (
-                    <div key={token.symbol} className="flex items-center justify-between p-4 bg-muted rounded-lg border">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-primary">
-                            {token.symbol.slice(0, 2)}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="font-medium">{token.symbol}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {token.balance.toFixed(6)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">
-                          ${token.usdValue?.toFixed(2) || '0.00'}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+            <Card className="border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">24h Change</CardTitle>
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                  +2.4%
                 </div>
-              </div>
-            )}
+                <p className="text-xs text-green-600 dark:text-green-400">
+                  +$0.12 today
+                </p>
+              </CardContent>
+            </Card>
 
-            {/* Quick Actions */}
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-center">Quick Actions</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <Card className="border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Status</CardTitle>
+                <Activity className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                  Live
+                </div>
+                <p className="text-xs text-purple-600 dark:text-purple-400">
+                  Mainnet ready
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Quick Actions
+              </CardTitle>
+              <CardDescription>
+                Common trading and portfolio actions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Link href="/swap?from=SOL&to=USDC">
-                  <Button variant="outline" className="w-full">
-                    SOL → USDC
+                  <Button variant="outline" className="w-full h-16 flex flex-col gap-1">
+                    <ArrowUpDown className="h-4 w-4" />
+                    <span className="text-xs">SOL → USDC</span>
                   </Button>
                 </Link>
                 <Link href="/swap?from=SOL&to=BONK">
-                  <Button variant="outline" className="w-full">
-                    SOL → BONK
-                  </Button>
-                </Link>
-                <Link href="/swap?from=SOL&to=FARTCOIN">
-                  <Button variant="outline" className="w-full">
-                    SOL → FARTCOIN
+                  <Button variant="outline" className="w-full h-16 flex flex-col gap-1">
+                    <ArrowUpDown className="h-4 w-4" />
+                    <span className="text-xs">SOL → BONK</span>
                   </Button>
                 </Link>
                 <Link href="/swap">
-                  <Button variant="outline" className="w-full">
-                    <ArrowUpDown className="mr-2 w-4 h-4" />
-                    Custom Swap
+                  <Button variant="outline" className="w-full h-16 flex flex-col gap-1">
+                    <ArrowUpDown className="h-4 w-4" />
+                    <span className="text-xs">Custom Swap</span>
                   </Button>
                 </Link>
+                <Button variant="outline" className="w-full h-16 flex flex-col gap-1" onClick={() => setShowAddWallet(true)}>
+                  <Plus className="h-4 w-4" />
+                  <span className="text-xs">Add Wallet</span>
+                </Button>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Wallet Address */}
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-semibold">SOL Wallet Address</h2>
-              <div className="max-w-2xl mx-auto p-4 bg-muted rounded-lg border">
-                <code className="text-sm font-mono break-all text-foreground">
+          {/* Token Holdings */}
+          {portfolio.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wallet className="h-5 w-5" />
+                  Holdings
+                </CardTitle>
+                <CardDescription>
+                  Your current token positions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {portfolio.map((token) => (
+                  <div key={token.symbol} className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <span className="text-sm font-bold text-white">
+                          {token.symbol.slice(0, 2)}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-semibold">{token.symbol}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {token.balance.toFixed(6)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">
+                        ${token.usdValue?.toFixed(2) || '0.00'}
+                      </div>
+                      <div className="text-xs text-green-600">
+                        +0.5%
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Wallet Address */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Wallet Address
+              </CardTitle>
+              <CardDescription>
+                Your Solana wallet address for receiving funds
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 bg-muted rounded-lg border">
+                <code className="text-sm font-mono break-all">
                   {wallet.publicKey}
                 </code>
               </div>
-              
-              <div className="flex justify-center gap-4">
+              <div className="flex gap-2 mt-4">
                 <Button
                   onClick={() => copyToClipboard(wallet.publicKey)}
                   variant="outline"
+                  className="flex-1"
                 >
                   <Copy className="h-4 w-4 mr-2" />
                   Copy Address
                 </Button>
+                <Button
+                  onClick={openInExplorer}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  View on Explorer
+                </Button>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Saved Wallets */}
-            <div className="space-y-4">
+          {/* Saved Wallets */}
+          <Card>
+            <CardHeader>
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Saved Wallets</h2>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Send className="h-5 w-5" />
+                    Saved Wallets
+                  </CardTitle>
+                  <CardDescription>
+                    Quick access to your external wallets
+                  </CardDescription>
+                </div>
                 <Button 
                   onClick={() => setShowAddWallet(!showAddWallet)}
                   size="sm"
@@ -417,44 +496,48 @@ export default function DashboardPage() {
                   Add Wallet
                 </Button>
               </div>
-
+            </CardHeader>
+            <CardContent>
               {showAddWallet && (
-                <div className="p-4 bg-muted rounded-lg border space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Label (e.g. My Personal Wallet)"
-                    value={newWalletLabel}
-                    onChange={(e) => setNewWalletLabel(e.target.value)}
-                    className="w-full bg-background border rounded px-3 py-2 text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Solana wallet address"
-                    value={newWalletAddress}
-                    onChange={(e) => setNewWalletAddress(e.target.value)}
-                    className="w-full bg-background border rounded px-3 py-2 text-sm"
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={addSavedWallet} size="sm">
-                      Save Wallet
-                    </Button>
-                    <Button 
-                      onClick={() => {
-                        setShowAddWallet(false);
-                        setNewWalletLabel("");
-                        setNewWalletAddress("");
-                      }}
-                      variant="outline" 
-                      size="sm"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
+                <Card className="mb-4">
+                  <CardContent className="p-4 space-y-3">
+                    <input
+                      type="text"
+                      placeholder="Label (e.g. My Personal Wallet)"
+                      value={newWalletLabel}
+                      onChange={(e) => setNewWalletLabel(e.target.value)}
+                      className="w-full bg-background border rounded px-3 py-2 text-sm"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Solana wallet address"
+                      value={newWalletAddress}
+                      onChange={(e) => setNewWalletAddress(e.target.value)}
+                      className="w-full bg-background border rounded px-3 py-2 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button onClick={addSavedWallet} size="sm" className="flex-1">
+                        Save Wallet
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setShowAddWallet(false);
+                          setNewWalletLabel("");
+                          setNewWalletAddress("");
+                        }}
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
 
               {savedWallets.length > 0 ? (
-                <div className="grid gap-3">
+                <div className="space-y-3">
                   {savedWallets.map((savedWallet) => {
                     const solBalance = portfolio.find(p => p.symbol === "SOL")?.balance || 0;
                     const usdcBalance = portfolio.find(p => p.symbol === "USDC")?.balance || 0;
@@ -462,11 +545,16 @@ export default function DashboardPage() {
                     const canSendUSDC = usdcBalance > 0;
                     
                     return (
-                      <div key={savedWallet.id} className="flex items-center justify-between p-4 bg-muted rounded-lg border">
-                        <div>
-                          <div className="font-medium">{savedWallet.label}</div>
-                          <div className="text-sm text-muted-foreground font-mono">
-                            {savedWallet.address.slice(0, 8)}...{savedWallet.address.slice(-8)}
+                      <div key={savedWallet.id} className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                            <Send className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <div className="font-semibold">{savedWallet.label}</div>
+                            <div className="text-sm text-muted-foreground font-mono">
+                              {savedWallet.address.slice(0, 12)}...{savedWallet.address.slice(-8)}
+                            </div>
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -476,7 +564,6 @@ export default function DashboardPage() {
                             size="sm"
                             variant="outline"
                           >
-                            <Send className="mr-1 w-3 h-3" />
                             Send SOL
                           </Button>
                           <Button
@@ -485,7 +572,6 @@ export default function DashboardPage() {
                             size="sm"
                             variant="outline"
                           >
-                            <Send className="mr-1 w-3 h-3" />
                             Send USDC
                           </Button>
                           <Button
@@ -493,7 +579,7 @@ export default function DashboardPage() {
                             size="sm"
                             variant="ghost"
                           >
-                            <Copy className="w-3 h-3" />
+                            <Copy className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
@@ -503,19 +589,14 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Wallet className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No saved wallets yet</p>
-                  <p className="text-xs">Add up to 4 wallet addresses for quick withdrawals</p>
+                  <p className="font-medium">No saved wallets yet</p>
+                  <p className="text-sm">Add up to 4 wallet addresses for quick withdrawals</p>
                 </div>
               )}
-            </div>
-
-            <div className="text-center">
-               <div className="text-xs text-muted-foreground">
-                 Wallet created on {new Date(wallet.createdAt).toLocaleDateString()}
-               </div>
-             </div>
-          </div>
-        )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
         {/* Send Modal */}
         {sendModal && (
@@ -593,6 +674,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-    </section>
+
   );
 }

@@ -107,6 +107,15 @@ const app = createProtectedHono()
 				flow.userId
 			);
 
+			await prisma.flow.update({
+				where: {
+					id,
+				},
+				data: {
+					triggeredAt: new Date(),
+				},
+			});
+
 			return c.json({});
 		}
 	)
@@ -155,6 +164,17 @@ const app = createProtectedHono()
 
 			return c.json({ message: "Flow saved" });
 		}
-	);
+	)
+	.get("/all", async (c) => {
+		const user = c.get("user");
+		if (!user) return c.json([]);
+
+		const flows = await prisma.flow.findMany({
+			where: {
+				userId: user.id,
+			},
+		});
+		return c.json(flows);
+	});
 
 export default app;

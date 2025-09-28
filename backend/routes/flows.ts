@@ -40,6 +40,20 @@ const app = createProtectedHono()
 			});
 			return c.json(flow);
 		}
+	)
+	.post(
+		"/trigger",
+		schemaValidator(
+			"json",
+			z.object({
+				id: z.string(),
+			})
+		),
+		async (c) => {
+			const { id } = c.req.valid("json");
+
+			return c.json({});
+		}
 	);
 
 export default app;

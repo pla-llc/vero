@@ -6,6 +6,7 @@ import { createHono } from "./lib/hono";
 import authRoutes from "./routes/auth";
 import flowRoutes from "./routes/flows";
 import { inngestRoutes } from "./routes/inngest";
+import trackingRoutes from "./routes/tracking";
 import walletRoutes from "./routes/wallet";
 
 dotenv.config();
@@ -41,7 +42,8 @@ const app = createHono()
 	.route("/auth", authRoutes)
 	.route("/wallet", walletRoutes)
 	.route("/flows", flowRoutes)
-	.route("/inngest", inngestRoutes);
+	.route("/inngest", inngestRoutes)
+	.route("/tracking", trackingRoutes);
 
 serve({
 	fetch: app.fetch,

@@ -108,3 +108,12 @@ model Flow {
   updatedAt DateTime @updatedAt
   triggeredAt DateTime?
 }
+
+model TrackingData {
+  id String @id @default(cuid())
+
+  coints String[]
+  wallets String[]
+
+  times String[]
+}

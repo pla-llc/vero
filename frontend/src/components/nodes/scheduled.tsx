@@ -1,9 +1,10 @@
 "use client";
 
+import { createClientApi } from "@/lib/hono/client";
 import { Node, NodeProps } from "@xyflow/react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Input } from "../ui/input";
@@ -13,6 +14,30 @@ import BasicNode from "./basic-node";
 export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 	const [date, setDate] = useState<Date | undefined>(undefined);
 	const [time, setTime] = useState<string>("00:00");
+
+	const [convertedDate, setConvertedDate] = useState<string | undefined>(
+		undefined
+	);
+
+	useEffect(() => {
+		if (!date || !time) return;
+
+		const utcDate = new Date(
+			date.getTime() + date.getTimezoneOffset() * 60000
+		);
+		const month = utcDate.getMonth();
+		const day = utcDate.getDate();
+		const year = utcDate.getFullYear();
+		const [hour, minute] = time.split(":");
+
+		const newDate = new Date();
+		newDate.setMonth(month);
+		newDate.setDate(day);
+		newDate.setHours(parseInt(hour));
+		newDate.setMinutes(parseInt(minute));
+		newDate.setSeconds(0);
+		setConvertedDate(newDate.toISOString());
+	}, [date, time]);
 
 	return (
 		<BasicNode id="schedule-trigger">
@@ -43,7 +68,10 @@ export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 								onSelect={setDate}
 								modifiers={{
 									disabled: (date) => {
-										return date < new Date();
+										return (
+											date.getDate() <
+											new Date().getDate()
+										);
 									},
 								}}
 								modifiersClassNames={{
@@ -60,6 +88,22 @@ export default function ScheduleNode(props: NodeProps<Node<{}>>) {
 							value={time}
 							onChange={(e) => setTime(e.target.value)}
 						/>
+						<button
+							onClick={async () => {
+								if (!convertedDate) return;
+
+								const api = createClientApi();
+								const res = await api.tracking.schedule.$post({
+									json: {
+										date: convertedDate,
+									},
+								});
+								const data = await res.json();
+								console.log(JSON.stringify(data, null, 2));
+							}}
+						>
+							add schedule
+						</button>
 					</div>
 				</div>
 			</div>

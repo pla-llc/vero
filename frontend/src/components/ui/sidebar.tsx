@@ -31,7 +31,7 @@ const sidebarItems = [
 		title: "Flows",
 		href: "/flows",
 		icon: Workflow,
-		describe: "Create and manage your flows",
+		description: "Manage your flows",
 	},
 	{
 		title: "Analytics",

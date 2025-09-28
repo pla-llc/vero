@@ -35,6 +35,20 @@ export type NodeVariableType = "string" | "number" | "boolean" | "coin";
 
 export const NodeTypes: NodeType[] = [
 	{
+		id: "schedule-trigger",
+		name: "Scheduled Trigger",
+		description: "Trigger the flow at a scheduled time.",
+		isTrigger: true,
+		variables: [
+			{
+				name: "date",
+				type: "string",
+				value: "",
+			},
+		],
+		onCall: async (data, uid) => {},
+	},
+	{
 		id: "convert",
 		name: "Swap",
 		description: "Swap your holdings to a different coin.",
@@ -76,10 +90,6 @@ export const NodeTypes: NodeType[] = [
 			if (swapType !== "coin") {
 				amountToSwap = (balance * amount) / 100;
 			}
-			console.log("uid:", uid);
-			console.log("from:", from);
-			console.log("to:", to);
-			console.log("amountToSwap:", amountToSwap);
 
 			const result = await WalletService.executeSwap(
 				uid,
@@ -96,15 +106,25 @@ export const NodeTypes: NodeType[] = [
 		},
 	},
 	{
-		id: "schedule-trigger",
-		name: "Scheduled Trigger",
-		description: "Trigger the flow at a scheduled time.",
-		isTrigger: true,
+		id: "send",
+		name: "Send",
+		description: "Send tokens to an external wallet.",
+		isTrigger: false,
 		variables: [
 			{
-				name: "date",
+				name: "toAddress",
 				type: "string",
 				value: "",
+			},
+			{
+				name: "amount",
+				type: "number",
+				value: 0.001,
+			},
+			{
+				name: "fromCoin",
+				type: "coin",
+				value: "SOL",
 			},
 		],
 		onCall: async (data, uid) => {},

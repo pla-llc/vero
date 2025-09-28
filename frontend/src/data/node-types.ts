@@ -127,7 +127,29 @@ export const NodeTypes: NodeType[] = [
 				value: "SOL",
 			},
 		],
-		onCall: async (data, uid) => {},
+		onCall: async (data, uid) => {
+			const { fromCoin: from, toAddress, amount } = data;
+			let floatAmount = parseFloat(amount);
+
+			console.log("uid:", uid);
+			console.log("toAddress:", toAddress);
+			console.log("from:", from);
+			console.log("floatAmount:", floatAmount);
+			return;
+
+			const result = await WalletService.sendTokens(
+				uid,
+				toAddress,
+				from,
+				floatAmount
+			);
+			if (!result.success) {
+				console.error("Failed to send tokens");
+				return;
+			}
+
+			console.log("Tokens sent");
+		},
 	},
 ];
 

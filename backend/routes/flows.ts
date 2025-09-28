@@ -78,6 +78,7 @@ const app = createProtectedHono()
 			})
 		),
 		async (c) => {
+			console.log("triggering flow");
 			const { id } = c.req.valid("json");
 
 			const flow = await prisma.flow.findUnique({

@@ -7,11 +7,19 @@ import { Input } from "../ui/input";
 import BasicNode from "./basic-node";
 import CoinVariable from "./variables/coin";
 
-export default function ConvertNode(props: NodeProps<Node<{}>>) {
+export default function SendNode(props: NodeProps<Node<{}>>) {
 	const { nodes, setNodeData } = useNodes();
 	const [node, setNode] = useState(
 		nodes.find((node) => node.id === props.id)
 	);
+
+	useEffect(() => {
+		if (!node) return;
+
+		if (!node.data.amount) {
+			node.data.fromCoin = 0.001;
+		}
+	}, []);
 
 	useEffect(() => {
 		setNode(nodes.find((node) => node.id === props.id));
@@ -26,7 +34,7 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 				</div>
 				<div className="flex items-center justify-between">
 					<label className="text-muted-foreground text-xs">
-						From:
+						Coin to send:
 					</label>
 					<CoinVariable
 						placeholder="Select coin..."
@@ -58,6 +66,8 @@ export default function ConvertNode(props: NodeProps<Node<{}>>) {
 							amount: e.target.value,
 						})
 					}
+					type="number"
+					min={0.001}
 				/>
 			</div>
 		</BasicNode>

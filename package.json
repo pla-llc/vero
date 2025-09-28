@@ -21,10 +21,12 @@
   "homepage": "https://github.com/pla-llc/vero#readme",
   "description": "",
   "dependencies": {
+    "@trigger.dev/sdk": "4.0.4",
     "concurrently": "^9.2.1",
     "inngest": "^3.43.1"
   },
   "devDependencies": {
+    "@trigger.dev/build": "4.0.4",
     "prettier-plugin-tailwindcss": "^0.6.14"
   }
 }

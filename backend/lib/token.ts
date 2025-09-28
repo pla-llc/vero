@@ -1,12 +1,13 @@
+import MiscPlugin from "@solana-agent-kit/plugin-misc";
+import { Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
 import {
-	SolanaAgentKit,
 	createVercelAITools,
 	KeypairWallet,
+	SolanaAgentKit,
 } from "solana-agent-kit";
-import MiscPlugin from "@solana-agent-kit/plugin-misc";
-import bs58 from "bs58";
-import { Keypair } from "@solana/web3.js";
 
+console.log(process.env.MASTER_WALLET_PRIVATE_KEY);
 const keyPair = Keypair.fromSecretKey(
 	bs58.decode(process.env.MASTER_WALLET_PRIVATE_KEY!)
 );

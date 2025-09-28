@@ -190,6 +190,7 @@ const app = createHono()
 							token,
 							analysisResult: {
 								success: false,
+								// @ts-ignore
 								error: `API call failed: ${apiError.message}`,
 								score: 0,
 								recommendation: "UNKNOWN",

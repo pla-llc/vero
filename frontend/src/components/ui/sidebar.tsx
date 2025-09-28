@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import {
 	ArrowLeftRight,
+	Bot,
 	ChevronRight,
 	LayoutDashboard,
 	Settings,
@@ -22,16 +23,22 @@ const sidebarItems = [
 		description: "Portfolio overview",
 	},
 	{
-		title: "Swap",
-		href: "/swap",
-		icon: ArrowLeftRight,
-		description: "Trade tokens",
-	},
-	{
 		title: "Flows",
 		href: "/flows",
 		icon: Workflow,
 		description: "Manage your flows",
+	},
+	{
+		title: "Auto-Trader",
+		href: "/trader",
+		icon: Bot,
+		description: "Allow AI to trade for you",
+	},
+	{
+		title: "Swap",
+		href: "/swap",
+		icon: ArrowLeftRight,
+		description: "Trade tokens",
 	},
 	{
 		title: "Analytics",
@@ -111,7 +118,7 @@ export function Sidebar() {
 				</div>
 
 				{/* Bottom accent */}
-				<div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-green-500" />
+				<div className="h-1 bg-gradient-to-r from-gray-500 via-purple-500 to-green-500" />
 			</div>
 		</div>
 	);

@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth";
 import birdeyeRoutes from "./routes/birdeye";
 import flowRoutes from "./routes/flows";
 import { inngestRoutes } from "./routes/inngest";
+import pricingRoutes from "./routes/pricing";
 import trackingRoutes from "./routes/tracking";
 import walletRoutes from "./routes/wallet";
 
@@ -44,6 +45,7 @@ const app = createHono()
 	.route("/analysis", analysisRoutes)
 	.route("/auth", authRoutes)
 	.route("/birdeye", birdeyeRoutes)
+	.route("/pricing", pricingRoutes)
 	.route("/wallet", walletRoutes)
 	.route("/flows", flowRoutes)
 	.route("/inngest", inngestRoutes)

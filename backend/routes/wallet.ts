@@ -1,6 +1,8 @@
 import { cors } from "hono/cors";
+import z from "zod";
 import { auth } from "../lib/auth";
 import { createHono } from "../lib/hono";
+import { schemaValidator } from "../lib/validator";
 import { TOKENS, WalletService } from "../lib/wallet";
 
 const app = createHono()
@@ -136,13 +138,13 @@ const app = createHono()
 				return c.json({ error: "Unauthorized" }, 401);
 			}
 
-		const token = c.req.param("token").toUpperCase();
-		let tokenMint: string = TOKENS[token as keyof typeof TOKENS];
+			const token = c.req.param("token").toUpperCase();
+			let tokenMint: string = TOKENS[token as keyof typeof TOKENS];
 
-		// If not in predefined tokens, treat as custom address
-		if (!tokenMint) {
-			tokenMint = c.req.param("token");
-		}
+			// If not in predefined tokens, treat as custom address
+			if (!tokenMint) {
+				tokenMint = c.req.param("token");
+			}
 
 			const balance = await WalletService.getTokenBalance(
 				session.user.id,
@@ -223,44 +225,56 @@ const app = createHono()
 	})
 
 	// Execute swap
-	.post("/swap/execute", async (c) => {
-		try {
-			const session = await auth.api.getSession({
-				headers: c.req.header() as any,
-			});
+	.post(
+		"/swap/execute",
+		schemaValidator(
+			"json",
+			z.object({
+				inputToken: z.string(),
+				outputToken: z.string(),
+				amount: z.number(),
+				slippage: z.number(),
+			})
+		),
+		async (c) => {
+			try {
+				const session = await auth.api.getSession({
+					headers: c.req.header() as any,
+				});
 
-			if (!session) {
-				return c.json({ error: "Unauthorized" }, 401);
+				if (!session) {
+					return c.json({ error: "Unauthorized" }, 401);
+				}
+
+				const { inputToken, outputToken, amount, slippage } =
+					await c.req.valid("json");
+
+				let inputMint =
+					TOKENS[inputToken.toUpperCase() as keyof typeof TOKENS];
+				let outputMint =
+					TOKENS[outputToken.toUpperCase() as keyof typeof TOKENS];
+
+				// Handle custom token addresses
+				if (!inputMint) inputMint = inputToken as any;
+				if (!outputMint) outputMint = outputToken as any;
+
+				console.log(amount);
+
+				const result = await WalletService.executeSwap(
+					session.user.id,
+					inputMint,
+					outputMint,
+					amount,
+					slippage || 50
+				);
+
+				return c.json(result);
+			} catch (error) {
+				console.error("Error executing swap:", error);
+				return c.json({ error: "Failed to execute swap" }, 500);
 			}
-
-			const { inputToken, outputToken, amount, slippage } =
-				await c.req.json();
-
-			let inputMint =
-				TOKENS[inputToken.toUpperCase() as keyof typeof TOKENS];
-			let outputMint =
-				TOKENS[outputToken.toUpperCase() as keyof typeof TOKENS];
-
-			// Handle custom token addresses
-			if (!inputMint) inputMint = inputToken;
-			if (!outputMint) outputMint = outputToken;
-
-			console.log(amount);
-
-			const result = await WalletService.executeSwap(
-				session.user.id,
-				inputMint,
-				outputMint,
-				amount,
-				slippage || 50
-			);
-
-			return c.json(result);
-		} catch (error) {
-			console.error("Error executing swap:", error);
-			return c.json({ error: "Failed to execute swap" }, 500);
 		}
-	})
+	)
 
 	// Get saved wallets
 	.get("/saved-wallets", async (c) => {
@@ -321,25 +335,26 @@ const app = createHono()
 				return c.json({ error: "Unauthorized" }, 401);
 			}
 
-		const { toAddress, amount, token } = await c.req.json();
-		
-		// Convert token symbol to contract address if needed
-		let tokenMint = token || "SOL";
-		if (typeof tokenMint === "string") {
-			// Check if it's a symbol in our TOKENS object
-			const contractAddress = TOKENS[tokenMint.toUpperCase() as keyof typeof TOKENS];
-			if (contractAddress) {
-				tokenMint = contractAddress;
+			const { toAddress, amount, token } = await c.req.json();
+
+			// Convert token symbol to contract address if needed
+			let tokenMint = token || "SOL";
+			if (typeof tokenMint === "string") {
+				// Check if it's a symbol in our TOKENS object
+				const contractAddress =
+					TOKENS[tokenMint.toUpperCase() as keyof typeof TOKENS];
+				if (contractAddress) {
+					tokenMint = contractAddress;
+				}
+				// If it's already a contract address or custom token, use as-is
 			}
-			// If it's already a contract address or custom token, use as-is
-		}
-		
-		const result = await WalletService.sendTokens(
-			session.user.id,
-			toAddress,
-			tokenMint,
-			amount
-		);
+
+			const result = await WalletService.sendTokens(
+				session.user.id,
+				toAddress,
+				tokenMint,
+				amount
+			);
 			return c.json(result);
 		} catch (error) {
 			console.error("Error sending tokens:", error);

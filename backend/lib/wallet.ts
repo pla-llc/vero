@@ -28,9 +28,6 @@ const connection = new Connection(
 // Jupiter API client for swaps
 const jupiterQuoteApi = createJupiterApiClient();
 
-// Rate limiting for Jupiter API
-let lastQuoteTime = 0;
-const QUOTE_RATE_LIMIT = 2000; // 2 seconds between quotes
 
 // Common token addresses with FARTCOIN
 export const TOKENS = {
@@ -279,18 +276,6 @@ export class WalletService {
 	) {
 		try {
 			// Rate limiting check
-			const now = Date.now();
-			const timeSinceLastQuote = now - lastQuoteTime;
-
-			if (timeSinceLastQuote < QUOTE_RATE_LIMIT) {
-				const waitTime = QUOTE_RATE_LIMIT - timeSinceLastQuote;
-				console.log(
-					`🛡️  Rate limiting Jupiter API call, waiting ${waitTime}ms`
-				);
-				await new Promise((resolve) => setTimeout(resolve, waitTime));
-			}
-
-			lastQuoteTime = Date.now();
 
 			// Handle SOL wrapping - Jupiter expects wrapped SOL address
 			const processedInputMint =

@@ -143,6 +143,11 @@ const Navbar = ({ authState }: { authState: AuthState }) => {
 											Dashboard
 										</Link>
 									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link href="/swap" className="cursor-pointer">
+											Swap Tokens
+										</Link>
+									</DropdownMenuItem>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem 
 										className="cursor-pointer text-destructive focus:text-destructive"

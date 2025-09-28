@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import { cors } from "hono/cors";
 import { auth } from "./lib/auth";
 import { createHono } from "./lib/hono";
+import analysisRoutes from "./routes/analysis";
 import authRoutes from "./routes/auth";
+import birdeyeRoutes from "./routes/birdeye";
 import flowRoutes from "./routes/flows";
 import { inngestRoutes } from "./routes/inngest";
 import trackingRoutes from "./routes/tracking";
@@ -39,7 +41,9 @@ const app = createHono()
 			credentials: true,
 		})
 	)
+	.route("/analysis", analysisRoutes)
 	.route("/auth", authRoutes)
+	.route("/birdeye", birdeyeRoutes)
 	.route("/wallet", walletRoutes)
 	.route("/flows", flowRoutes)
 	.route("/inngest", inngestRoutes)

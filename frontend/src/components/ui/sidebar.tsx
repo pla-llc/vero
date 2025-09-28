@@ -28,12 +28,6 @@ const sidebarItems = [
     description: "Trade tokens"
   },
   {
-    title: "Wallet",
-    href: "/wallet",
-    icon: Wallet,
-    description: "Manage funds"
-  },
-  {
     title: "Analytics",
     href: "/analytics",
     icon: TrendingUp,

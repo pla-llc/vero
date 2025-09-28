@@ -59,6 +59,28 @@ const app = createHono()
 		}
 	})
 
+  .get('/private-key', async (c) => {
+    try {
+    const session = await auth.api.getSession({
+      headers: c.req.header() as any,
+    });
+    
+    if (!session) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const wallet = await WalletService.getWalletForUser(session.user.id);
+    if (!wallet) {
+      return c.json({ error: "Wallet not found" }, 404);
+    }
+
+    return c.json({ privateKey: wallet.privateKey });
+  } catch (error) {
+    console.error("Error getting private key:", error);
+    return c.json({ error: "Internal server error" }, 500);
+  }
+})
+
 	// Get wallet balance
 	.get("/balance", async (c) => {
 		try {
